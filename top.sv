@@ -228,6 +228,7 @@ end
     //Register Write Enable
     assign WriteEnable = RegWrite_fsm;
 
+    //B-type branching PC control
     always_comb begin
     if (Branch_fsm) begin
         case (funct3)

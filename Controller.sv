@@ -80,8 +80,8 @@ module Controller(
                     rd = instr[11:7];
                     funct7 = instr[31:25];
                     funct3 = instr[14:12];
-
                     ImmExt = 32'd0; //no ImmExt R-type
+
                 end
 
                 7'b0000011: begin //I-type (Loads)
@@ -330,30 +330,48 @@ module Controller(
             2'b10: begin //R-type and I-type ALU operations
                 case(funct3)
                     3'b000: begin
-                        if (opcode == 7'b0110011 && funct7[5]) // SUB
-                            ALUControl = 4'b0001;
-                        else // ADD or ADDI
-                            ALUControl = 4'b0000;
-                    end
-                    3'b001: begin 
-                        ALUControl = 4'b0101; //SLL
+
+                        if (opcode == 7'b0110011 && funct7[5]) 
+                            ALUControl = 4'b0001; //SUB
+                        else if (funct7 = 7'b0000001)
+                            ALUControl = 4'b1010 //MUL
+                        else
+                            ALUControl = 4'b0000; // ADD or ADDI
                     end
 
-                    3'b010: begin 
-                        ALUControl = 4'b1000; //SLT
+                    3'b001: begin
+                        if (funct7 == 7'b0000000)
+                            ALUControl = 4'b0101; //SLL
+                        else
+                            ALUControl = 4'b1011; //MULH
+                    end
+
+                    3'b010: begin
+                        if (funct7 == 7'b0000000) 
+                            ALUControl = 4'b1000; //SLT
+                        else
+                            ALUControl = 4'b1100; //MULHSU
                     end
 
                     3'b011: begin
-                        ALUControl = 4'b1001; //SLTU
+                        if (funct7 = 7'b0000000)
+                            ALUControl = 4'b1001; //SLTU
+                        else
+                            ALUControl = 4'b1101; //MULHU
                     end
 
-                    3'b100: begin 
-                        ALUControl = 4'b0100; //XOR
+                    3'b100: begin
+                        if (funct7 = 7'b000000)
+                            ALUControl = 4'b0100; //XOR
+                        else 
+                            ALUControl = 4'b1110; //DIV
                     end 
 
                     3'b101: begin
                         if (funct7[5]) //SRA
                             ALUControl = 4'b0111;
+                        if (funct7 = 7'b0000001)
+                            ALUControl = 4'b1111; //DIVU
                         else //SRL
                             ALUControl = 4'b0110;
                     end

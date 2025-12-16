@@ -7,6 +7,7 @@ module ALU(
     );
 
     logic [4:0] bits; //this will help me prevent bit slicing
+    logic [63:0] temp_result //temporary result for certain signed operations
     assign bits = SrcB[4:0];
 
     always_comb begin
@@ -60,6 +61,43 @@ module ALU(
                 ALUresult = (SrcA < SrcB) ? 32'd1 : 32'd0;
             end
 
+            4'b1010: begin //MUL
+                zero = 0;
+                temp_result = srcA * SrcB;
+                ALUresult = temp_result[31:0];
+
+            end
+
+            4'b1011: begin //MULH
+                zero = 0;
+                temp_result = (($signed(srcA)) * ($signed(srcB)));
+                ALUresult = temp_result[63:32];
+            end
+
+            4'b1100: begin //MULHSU
+                zero = 0;
+                temp_result = ($signed(srcA)) * srcB;
+                ALUresult = temp_result[63:32];
+            end
+
+            4'b1101: begin //MULHU
+                zero = 0;
+                temp_result = SrcA * srcB;
+                ALUresult = temp_result[63:32];
+            end
+
+            //FOR ALL DIVIDE INSTRUCTIONS DOUBLE CHECK IF BRAD IS OKAY WITH US JUST DOING /
+
+            4'b1110: begin //DIV 
+                zero = 0;
+                ALUresult = ($signed(SrcA) / $signed(srcB));
+            end
+
+            4'b1111: begin //DIVU
+                zero = 0;
+                ALUresult = (SrcA / srcB);
+            end
+             
             default:begin
                 zero = 0;
                 ALUresult = 32'd0;
