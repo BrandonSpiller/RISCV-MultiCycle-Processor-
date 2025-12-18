@@ -24,9 +24,10 @@
 // can be accessed through the data memory ports.
 
 module memory #(
-    parameter IMEM_INIT_FILE_PREFIX = "IMEM_", 
+    parameter IMEM_INIT_FILE_PREFIX = "FINAL_IMEM", 
     parameter DMEM_INIT_FILE_PREFIX = "", 
-    parameter CLK_FREQ = 12000000
+    parameter CLK_FREQ = 10000000  //10 MHz
+
 )(
     input logic     clk, 
     input logic     [2:0] funct3, 

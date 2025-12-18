@@ -1,3 +1,9 @@
+// The top module then is responsible for connecting the datapath and receiving control signals to determine the data flow of the processor. 
+//It instantiates all components of the datapath (all the other modules) and connects them together to form a fully operational datapath. 
+//The top module also contains multiplexers which allow different data selections to be outputted into different modules based on control 
+//signals from the controller. It also contains pipelined registers which store intermediate values between the different states of the FSM. 
+//Then it also contains the Program counter update logic which allows the program counter to continue to the next program counter value.
+
 `include "./ALU.sv"
 `include "./Program_Counter.sv"
 `include "./Register.sv"
@@ -6,8 +12,8 @@
 
 module top(  
     input logic     clk, 
-    input logic     SW, //maybe remove
-    input logic     BOOT, //maybe remove
+    input logic     SW,
+    input logic     BOOT,
     output logic    led,
     output logic    red,
     output logic    green,
@@ -72,7 +78,7 @@ module top(
     logic reset;
 
     //troubleshooting
-    logic [31:0] BranchTarget_reg; //just saving jump in seperate register for now
+    logic [31:0] BranchTarget_reg; //saving jump in seperate register
 
     always_ff @(posedge clk) begin
     if (!reset) begin
@@ -98,7 +104,7 @@ module top(
         RD2_reg <= ReadData2;
 
         if (u4.current_state == u4.Decode) begin
-            BranchTarget_reg <= ALUresult;  // This is PC + ImmExt
+            BranchTarget_reg <= ALUresult;  // PC + ImmExt
         end
     end
 end
@@ -280,7 +286,4 @@ end
     //PC Enable (write to PC)
     assign enable = PCWrite || (Branch_fsm && zero) || Jump;
 
-
 endmodule
-//Instantiate all modules here
-//Connect Datapath and put muxes here

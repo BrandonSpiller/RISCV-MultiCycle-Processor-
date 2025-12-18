@@ -1,3 +1,15 @@
+// The Controller module is responsible for determining the control signals for the processor that are used to run the datapath.
+//It contains the instruction decoder and sign extender, the main decoder, the ALU decoder, and the main finite state machine (FSM).
+//Each class of RV32I instructions has a different configuration of instruction fields, so the Instruction decoder takes the instruction
+//and separates it into its constituent fields (funct7, funct3, Immediate, rs1, rs2, rd, and opcode). The Instruction decoder then also
+//functions as a sign extender and extends the immediate based on the instruction type. The Main decoder takes the opcode from the Instruction 
+//decoder and generates the primary control signals (RegWrite, MemWrite, ALUSrc, ResultSrc, Branch, Jump, and ALUOp) that determine how data
+//flows through the processor and what operations are performed. The ALU decoder then uses the ALUOp signal along with funct3 and funct7 fields
+//to generate the specific 4-bit ALUControl signal that tells the ALU which operation to perform (ADD, SUB, AND, OR, XOR, shifts, etc.). 
+//The heart of the controller file is in the main FSM where the processor executes different states and sequences through the fetch-decode-execute
+//cycle, managing when instructions are fetched from memory, when they are decoded, when the ALU performs computations, when memory is accessed for
+//loads & stores, and when results are written back to registers.
+
 module Controller(
     input logic clk,
     //Instruction relevant variables
@@ -333,8 +345,8 @@ module Controller(
 
                         if (opcode == 7'b0110011 && funct7[5]) 
                             ALUControl = 4'b0001; //SUB
-                        else if (funct7 = 7'b0000001)
-                            ALUControl = 4'b1010 //MUL
+                        else if (funct7 == 7'b0000001)
+                            ALUControl = 4'b1010; //MUL
                         else
                             ALUControl = 4'b0000; // ADD or ADDI
                     end
@@ -354,14 +366,14 @@ module Controller(
                     end
 
                     3'b011: begin
-                        if (funct7 = 7'b0000000)
+                        if (funct7 == 7'b0000000)
                             ALUControl = 4'b1001; //SLTU
                         else
                             ALUControl = 4'b1101; //MULHU
                     end
 
                     3'b100: begin
-                        if (funct7 = 7'b000000)
+                        if (funct7 == 7'b000000)
                             ALUControl = 4'b0100; //XOR
                         else 
                             ALUControl = 4'b1110; //DIV
@@ -370,7 +382,7 @@ module Controller(
                     3'b101: begin
                         if (funct7[5]) //SRA
                             ALUControl = 4'b0111;
-                        if (funct7 = 7'b0000001)
+                        if (funct7 == 7'b0000001)
                             ALUControl = 4'b1111; //DIVU
                         else //SRL
                             ALUControl = 4'b0110;
@@ -509,6 +521,7 @@ module Controller(
                     next_state = MemWrite_state;
                 else
                     next_state = Fetch;
+                
                 
                 //Action
                 SrcA = 2'b01; //Register data
